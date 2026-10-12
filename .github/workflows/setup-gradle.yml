@@ -16,11 +16,18 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: Generate Gradle Wrapper
-        run: gradle wrapper --gradle-version 8.5
+      - name: Generate Gradle Wrapper structure
+        run: |
+          gradle wrapper --gradle-version 8.5
+          mkdir -p gradle/wrapper
+
+      - name: Download missing gradle-wrapper.jar
+        run: |
+          curl -L -o gradle/wrapper/gradle-wrapper.jar https://raw.githubusercontent.com/gradle/gradle/v8.5.0/subprojects/wrapper/src/main/resources/gradle-wrapper.jar
 
       - name: Commit and push Gradle files
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
-          commit_message: "Add missing Gradle wrapper files automatically"
+          commit_message: "Add gradlew and gradle-wrapper.jar explicitly"
           file_pattern: "gradlew gradlew.bat gradle/"
+          
