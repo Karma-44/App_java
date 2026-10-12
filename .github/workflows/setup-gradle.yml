@@ -1,0 +1,26 @@
+name: Setup Gradle Wrapper
+
+on:
+  workflow_dispatch:
+
+jobs:
+  setup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Generate Gradle Wrapper
+        run: gradle wrapper --gradle-version 8.5
+
+      - name: Commit and push Gradle files
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "Add missing Gradle wrapper files automatically"
+          file_pattern: "gradlew gradlew.bat gradle/"
