@@ -1,1 +1,60 @@
 
+@if "%DEBUG%" == "" @echo off
+@rem
+@rem Copyright 2015 the original author or authors.
+@rem
+@rem Licensed under the Apache License, Version 2.0 (the "License");
+@rem you may not use this file except in compliance with the License.
+@rem You may obtain a copy of the License at
+@rem
+@rem      https://www.apache.org/licenses/LICENSE-2.0
+@rem
+@rem Unless required by applicable law or agreed to in writing, software
+@rem distributed under the License is distributed on an "AS IS" BASIS,
+@rem WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+@rem See the License for the specific language governing permissions and
+@rem limitations under the License.
+@rem
+
+if "%DIRNAME%" == "" set DIRNAME=%~dp5
+if "%DIRNAME%" == "" set DIRNAME=.
+
+set APP_BASE_NAME=%~n0
+set APP_HOME=%DIRNAME%
+
+@rem Resolve any relative links
+if defined JAVA_HOME goto findJavaFromJavaHome
+
+set JAVACMD=java
+"%JAVA_HOME%\bin\java.exe" -version >NUL 2>&1
+if "%ERRORLEVEL%" == "0" goto execute
+
+echo.
+echo ERROR: JAVA_HOME is not set and no 'java' command could be found in your PATH.
+echo.
+goto fail
+
+:findJavaFromJavaHome
+set JAVACMD=%JAVA_HOME%\bin\java.exe
+if exist "%JAVACMD%" goto execute
+
+echo.
+echo ERROR: JAVA_HOME is set to an invalid directory: %JAVA_HOME%
+echo Please set the JAVA_HOME variable in your environment to match the
+location of your Java installation.
+echo.
+goto fail
+
+:execute
+set CLASSPATH=%APP_HOME%\gradle\wrapper\gradle-wrapper.jar
+"%JAVACMD%" "-Xmx64m" "-Xms64m" "-Dorg.gradle.appname=%APP_BASE_NAME%" -classpath "%CLASSPATH%" org.gradle.wrapper.GradleWrapperMain %*
+
+:fail
+rem Set variable EXIT_CODE so it can be used in outside call
+set EXIT_CODE=%%
+if %EXIT_CODE% == 0 set EXIT_CODE=1
+goto end
+
+:end
+if "%OS%"=="Windows_NT" endlocal
+set EXIT_CODE=%EXIT_CODE%
