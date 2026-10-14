@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.keepaliveapp">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
     <application
         android:allowBackup="true"
@@ -10,7 +9,6 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.AppCompat.Light.DarkActionBar">
 
-        <!-- Activité Principale -->
         <activity
             android:name=".MainActivity"
             android:exported="true">
@@ -20,7 +18,6 @@
             </intent-filter>
         </activity>
 
-        <!-- Service en arrière-plan -->
         <service
             android:name=".KeepAliveService"
             android:exported="false" />
