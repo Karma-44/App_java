@@ -1,65 +1,85 @@
 package com.example.keepaliveapp;
 
-import android.app.Service;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
-import android.os.Handler;
-import android.os.IBinder;
-import androidx.annotation.Nullable;
+import android.os.Bundle;
+import android.widget.Button;
+import android.widget.TextView;
+import android.widget.Toast;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
-public class KeepAliveService extends Service {
+public class MainActivity extends AppCompatActivity {
 
-    private final Handler handler = new Handler();
-    private Runnable monitorRunnable;
-    
-    // Remplacez par le nom du package de l'application que vous souhaitez maintenir active
-    private static final String TARGET_PACKAGE_NAME = "com.example.monautreapp"; 
+    private TextView tvSelectedApp;
+    private SharedPreferences sharedPreferences;
+    private static final String PREF_NAME = "KeepAlivePrefs";
+    private static final String KEY_TARGET_PACKAGE = "target_package";
 
-    @Nullable
     @Override
-    public IBinder onBind(Intent intent) {
-        return null;
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        tvSelectedApp = findViewById(R.id.tvSelectedApp);
+        Button btnSelectApp = findViewById(R.id.btnSelectApp);
+
+        sharedPreferences = getSharedPreferences(PREF_NAME, MODE_PRIVATE);
+        String savedPackage = sharedPreferences.getString(KEY_TARGET_PACKAGE, null);
+
+        if (savedPackage != null) {
+            tvSelectedApp.setText("Surveille : " + savedPackage);
+            startKeepAliveService();
+        }
+
+        btnSelectApp.setOnClickListener(v -> showInstalledAppsDialog());
     }
 
-    @Override
-    public int onStartCommand(Intent intent, int flags, int startId) {
-        // Lancer la boucle de surveillance
-        startMonitoring();
-        return START_STICKY;
-    }
-
-    private void startMonitoring() {
-        monitorRunnable = new Runnable() {
-            @Override
-            public void run() {
-                checkAndRestartTargetApp();
-                // Vérifier toutes les 5 secondes (5000 ms)
-                handler.postDelayed(this, 5000);
-            }
-        };
-        handler.post(monitorRunnable);
-    }
-
-    private void checkAndRestartTargetApp() {
+    private void showInstalledAppsDialog() {
         PackageManager pm = getPackageManager();
-        Intent launchIntent = pm.getLaunchIntentForPackage(TARGET_PACKAGE_NAME);
+        // Récupérer toutes les applications installées
+        List<ApplicationInfo> packages = pm.getInstalledApplications(PackageManager.GET_META_DATA);
+        List<String> appNames = new ArrayList<>();
+        List<String> packageNames = new ArrayList<>();
 
-        if (launchIntent != null) {
-            // Optionnel : Vous pouvez ajouter une logique pour vérifier si l'app tourne déjà, 
-            // sinon la relancer automatiquement :
-            // launchIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            // startActivity(launchIntent);
+        for (ApplicationInfo packageInfo : packages) {
+            // Filtrer pour ne garder que les apps qui ont une interface (launchable)
+            if (pm.getLaunchIntentForPackage(packageInfo.packageName) != null) {
+                String appName = pm.getApplicationLabel(packageInfo).toString();
+                appNames.add(appName);
+                packageNames.add(packageInfo.packageName);
+            }
         }
+
+        // Trier par ordre alphabétique
+        // (Optionnel mais plus propre, on associe les deux listes ou on affiche les noms)
+        CharSequence[] namesArray = appNames.toArray(new CharSequence[0]);
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Sélectionnez l'application à maintenir");
+        builder.setItems(namesArray, (dialog, which) -> {
+            String selectedPackage = packageNames.get(which);
+            String selectedName = appNames.get(which);
+
+            // Sauvegarder le choix
+            sharedPreferences.edit().putString(KEY_TARGET_PACKAGE, selectedPackage).apply();
+            tvSelectedApp.setText("Surveille : " + selectedName);
+
+            Toast.makeText(this, "Application enregistrée !", Toast.LENGTH_SHORT).show();
+
+            // Lancer le service
+            startKeepAliveService();
+        });
+        builder.show();
     }
 
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        if (handler != null && monitorRunnable != null) {
-            handler.removeCallbacks(monitorRunnable);
-        }
-        // Tenter de redémarrer le service s'il est détruit
-        Intent restartIntent = new Intent(getApplicationContext(), KeepAliveService.class);
-        startService(restartIntent);
+    private void startKeepAliveService() {
+        Intent serviceIntent = new Intent(this, KeepAliveService.class);
+        startService(serviceIntent);
     }
 }
