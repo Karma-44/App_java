@@ -1,17 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
-
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
-    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.example.keepaliveapp">
 
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
-        android:label="KeepAliveApp"
+        android:label="KeepAlive"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.AppCompat.Light.DarkActionBar">
 
+        <!-- Activité Principale -->
         <activity
             android:name=".MainActivity"
             android:exported="true">
@@ -21,9 +20,9 @@
             </intent-filter>
         </activity>
 
+        <!-- Service en arrière-plan -->
         <service
             android:name=".KeepAliveService"
-            android:enabled="true"
             android:exported="false" />
 
     </application>
