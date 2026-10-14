@@ -1,17 +1,19 @@
 package com.example.keepaliveapp;
 
+import android.app.Service;
 import android.content.Intent;
-import android.os.Bundle;
-import androidx.appcompat.app.AppCompatActivity;
+import android.os.IBinder;
+import androidx.annotation.Nullable;
 
-public class MainActivity extends AppCompatActivity {
+public class KeepAliveService extends Service {
+    @Nullable
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+    public IBinder onBind(Intent intent) {
+        return null;
+    }
 
-        // Lancement du service KeepAlive
-        Intent serviceIntent = new Intent(this, KeepAliveService.class);
-        startService(serviceIntent);
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        return START_STICKY;
     }
 }
